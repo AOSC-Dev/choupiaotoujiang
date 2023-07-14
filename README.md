@@ -1,2 +1,3 @@
 # choupiaotoujiang
-AOSCC roll tool
+
+A tool for raffles at AOSCC.
