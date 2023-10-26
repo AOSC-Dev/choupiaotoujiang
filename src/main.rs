@@ -15,27 +15,26 @@ struct Args {
 }
 
 fn main() {
-    let cli = Args::parse();
-    let times = cli.times;
-    let peoples = cli.peoples;
-    let second = cli.secs;
+    let Args {
+        times,
+        peoples,
+        secs,
+    } = Args::parse();
 
     let mut timer = Instant::now();
-    // let mut rng = rand::thread_rng();
 
     let mut count = 0;
     let mut peoples_vec = (1..=peoples).collect::<Vec<_>>();
 
     loop {
         let pb = ProgressBar::new_spinner();
-        // pb.enable_steady_tick(Duration::from_millis(1000));
         if times == count {
             break;
         }
         let mut lucky: u32;
         let mut index: Option<usize> = None;
         loop {
-            if timer.elapsed().as_secs_f32() >= second as f32 {
+            if timer.elapsed().as_secs_f32() >= secs as f32 {
                 pb.finish();
                 println!("Input Enter to continue ...");
                 let mut buffer = String::new();
