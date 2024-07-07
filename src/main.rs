@@ -1,5 +1,9 @@
 use std::{
-    fs, io::{self, stdin, BufReader}, path::PathBuf, thread, time::{Duration, Instant}
+    fs,
+    io::{self, stdin, BufReader},
+    path::PathBuf,
+    thread,
+    time::{Duration, Instant},
 };
 
 use clap::Parser;
@@ -50,20 +54,19 @@ fn random(times: u8, peoples: u32, secs: u32) {
     let mut rng = thread_rng();
     let mut timer = Instant::now();
 
-    let mut count = 0;
     let mut peoples_vec = (1..=peoples).collect::<Vec<_>>();
 
-    loop {
+    for _ in 1..=times {
         let pb = ProgressBar::new_spinner();
-        if times == count {
-            break;
-        }
+
         let mut lucky: u32;
         let mut index: Option<usize> = None;
+
         loop {
             if timer.elapsed().as_secs_f32() >= secs as f32 {
                 pb.finish();
                 println!("Input Enter to continue ...");
+
                 let mut buffer = String::new();
                 loop {
                     let stdin = stdin().read_line(&mut buffer);
@@ -74,6 +77,7 @@ fn random(times: u8, peoples: u32, secs: u32) {
                         break;
                     }
                 }
+
                 break;
             }
 
@@ -85,8 +89,6 @@ fn random(times: u8, peoples: u32, secs: u32) {
 
             thread::sleep(Duration::from_millis(10));
         }
-
-        count += 1;
     }
 }
 
