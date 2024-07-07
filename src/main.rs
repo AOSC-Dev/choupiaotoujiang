@@ -12,22 +12,21 @@ use sha2::{Digest, Sha512};
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 enum App {
+    /// Seed from a file
     Seed {
         file: PathBuf,
         #[arg(long, short, value_parser = clap::value_parser!(u32).range(2..))]
         peoples: u32,
     },
-    Random(Args),
-}
-
-#[derive(Parser, Debug)]
-struct Args {
-    #[arg(long, short, value_parser = clap::value_parser!(u8).range(1..))]
-    times: u8,
-    #[arg(long, short, value_parser = clap::value_parser!(u32).range(2..))]
-    peoples: u32,
-    #[arg(long, short, value_parser = clap::value_parser!(u32).range(1..))]
-    secs: u32,
+    /// Generate random number
+    Random {
+        #[arg(long, short, value_parser = clap::value_parser!(u8).range(1..))]
+        times: u8,
+        #[arg(long, short, value_parser = clap::value_parser!(u32).range(2..))]
+        peoples: u32,
+        #[arg(long, short, value_parser = clap::value_parser!(u32).range(1..))]
+        secs: u32,
+    },
 }
 
 fn main() {
@@ -38,18 +37,17 @@ fn main() {
             let num = seed_from_file(peoples, file);
             println!("{num}");
         }
-        App::Random(args) => {
-            random(args);
+        App::Random {
+            times,
+            peoples,
+            secs,
+        } => {
+            random(times, peoples, secs);
         }
     }
 }
 
-fn random(args: Args) {
-    let Args {
-        times,
-        peoples,
-        secs,
-    } = args;
+fn random(times: u8, peoples: u32, secs: u32) {
     let mut timer = Instant::now();
 
     let mut count = 0;
