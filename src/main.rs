@@ -62,7 +62,7 @@ fn random(times: u8, peoples: u32, secs: u32) {
         let mut lucky: u32;
         let mut index: Option<usize> = None;
 
-        loop {
+        'a: loop {
             if timer.elapsed().as_secs_f32() >= secs as f32 {
                 pb.finish();
                 println!("Input Enter to continue ...");
@@ -74,11 +74,9 @@ fn random(times: u8, peoples: u32, secs: u32) {
                         peoples_vec.remove(index.unwrap());
                         timer = Instant::now();
                         pb.finish_and_clear();
-                        break;
+                        break 'a;
                     }
                 }
-
-                break;
             }
 
             let i = rng.gen_range(0..=peoples_vec.len() - 1);
