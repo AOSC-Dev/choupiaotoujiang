@@ -37,8 +37,7 @@ fn main() {
 
     match app {
         App::Seed { file, peoples } => {
-            let num = seed_from_file(peoples, file);
-            println!("{num}");
+            println!("Lucky number: {}", seed_from_file(peoples, file));
         }
         App::Random {
             times,
