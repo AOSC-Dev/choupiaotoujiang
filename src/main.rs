@@ -1,8 +1,5 @@
 use std::{
-    fs,
-    io::{self, stdin, BufReader},
-    path::PathBuf,
-    time::Instant,
+    fs, io::{self, stdin, BufReader}, path::PathBuf, thread, time::{Duration, Instant}
 };
 
 use clap::Parser;
@@ -80,9 +77,13 @@ fn random(times: u8, peoples: u32, secs: u32) {
                 break;
             }
 
-            index = Some(rng.gen_range(0..=peoples_vec.len() - 1));
-            lucky = peoples_vec[index.unwrap()];
+            let i = rng.gen_range(0..=peoples_vec.len() - 1);
+            lucky = peoples_vec[i];
+            index = Some(i);
+
             pb.set_message(format!("Lucky number: {lucky}"));
+
+            thread::sleep(Duration::from_millis(10));
         }
 
         count += 1;
