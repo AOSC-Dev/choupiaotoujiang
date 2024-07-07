@@ -7,6 +7,9 @@ use std::{
 
 use clap::Parser;
 use indicatif::ProgressBar;
+use rand::{thread_rng, Rng};
+use rand_pcg::Pcg64;
+use rand_seeder::Seeder;
 use sha2::{Digest, Sha512};
 
 #[derive(Parser, Debug)]
@@ -48,6 +51,7 @@ fn main() {
 }
 
 fn random(times: u8, peoples: u32, secs: u32) {
+    let mut rng = thread_rng();
     let mut timer = Instant::now();
 
     let mut count = 0;
@@ -77,7 +81,7 @@ fn random(times: u8, peoples: u32, secs: u32) {
                 break;
             }
 
-            index = Some(fastrand::usize(..peoples_vec.len()));
+            index = Some(rng.gen_range(0..=peoples_vec.len() - 1));
             lucky = peoples_vec[index.unwrap()];
             pb.set_message(format!("Lucky number: {lucky}"));
         }
@@ -86,15 +90,13 @@ fn random(times: u8, peoples: u32, secs: u32) {
     }
 }
 
-fn seed_from_file(peoples: u32, file: PathBuf) -> usize {
+fn seed_from_file(peoples: u32, file: PathBuf) -> u32 {
     let f = fs::File::open(file).unwrap();
     let mut reader = BufReader::new(f);
     let mut sha512 = Sha512::new();
     io::copy(&mut reader, &mut sha512).unwrap();
     let v = sha512.finalize();
+    let mut rng: Pcg64 = Seeder::from(&v).make_rng();
 
-    let num: u64 = v.into_iter().map(|x| x as u64).sum();
-    fastrand::seed(num);
-
-    fastrand::usize(1..peoples as usize)
+    rng.gen_range(1..=peoples)
 }
