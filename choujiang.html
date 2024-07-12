@@ -1,0 +1,41 @@
+<html>
+  <form>
+    <label for="fileUpload">Upload file</label>
+    <input type="file" id="fileUpload" />
+    <div>
+      <a id="result"></a>
+    </div>
+  </form>
+  <script>
+    const fileInput = document.getElementById("fileUpload");
+    fileInput.addEventListener("change", (event) => {
+      console.log(event);
+      const file = event.target.files[0];
+      console.log(file);
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          console.log(event);
+        };
+        reader.readAsArrayBuffer(file);
+        reader.onloadend = function (e) {
+          const formData = new FormData();
+          console.log(e.target.result);
+          const blob = new Blob([e.target.result]);
+          formData.append("photo", blob);
+
+          fetch("http://127.0.0.1:3233/upload", {
+            method: "POST",
+            body: formData,
+          }).then((resp) => {
+            resp
+              .json()
+              .then(
+                (json) => (document.getElementById("result").innerHTML = json)
+              );
+          });
+        };
+      }
+    });
+  </script>
+</html>
