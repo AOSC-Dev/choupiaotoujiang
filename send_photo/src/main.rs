@@ -1,7 +1,11 @@
 use std::io::{self, BufReader, Cursor};
 
 use axum::{
-    extract::{Multipart, State}, http::{Method, StatusCode}, response::{IntoResponse, Response}, routing::post, Json, Router
+    extract::{Multipart, State},
+    http::{Method, StatusCode},
+    response::{IntoResponse, Response},
+    routing::post,
+    Json, Router,
 };
 use rand::Rng;
 use rand_pcg::Pcg64;
@@ -32,10 +36,11 @@ async fn main() -> anyhow::Result<()> {
     dotenvy::dotenv().ok();
     let uri = std::env::var("choujiang_uri")?;
     let peoples = std::env::var("choujiang_peoples")?.parse::<u32>()?;
+    let start = std::env::var("choujiang_peoples_start")?.parse::<u32>()?;
 
     let router = Router::new()
         .route("/upload", post(upload))
-        .with_state(peoples)
+        .with_state((start, peoples))
         .layer(
             CorsLayer::new()
                 .allow_origin(Any)
@@ -49,7 +54,7 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn upload(state: State<u32>, mut form: Multipart) -> Result<Json<u32>, AnyhowError> {
+async fn upload(state: State<(u32, u32)>, mut form: Multipart) -> Result<Json<u32>, AnyhowError> {
     let mut v = vec![];
     while let Some(field) = form.next_field().await? {
         match field.name() {
@@ -61,12 +66,12 @@ async fn upload(state: State<u32>, mut form: Multipart) -> Result<Json<u32>, Any
         }
     }
 
-    let num = tokio::task::spawn_blocking(move || get_num(v, state.0)).await?;
+    let num = tokio::task::spawn_blocking(move || get_num(v, state.0 .0, state.0 .1)).await?;
 
     Ok(Json::from(num))
 }
 
-fn get_num(f: Vec<u8>, peoples: u32) -> u32 {
+fn get_num(f: Vec<u8>, start: u32, peoples: u32) -> u32 {
     let f = Cursor::new(f);
     let mut reader = BufReader::new(f);
     let mut sha512 = Sha512::new();
@@ -74,5 +79,5 @@ fn get_num(f: Vec<u8>, peoples: u32) -> u32 {
     let v = sha512.finalize();
     let mut rng: Pcg64 = Seeder::from(&v).make_rng();
 
-    rng.gen_range(1..=peoples)
+    rng.gen_range(start - 1..=peoples)
 }
