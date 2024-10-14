@@ -71,18 +71,18 @@ async fn upload(state: State<(u32, u32)>, mut form: Multipart) -> Result<Json<u3
         }
     }
 
-    let num = tokio::task::spawn_blocking(move || get_num(v, state.0 .0, state.0 .1)).await?;
+    let num = tokio::task::spawn_blocking(move || get_num(v, state.0 .0, state.0 .1)).await??;
 
     Ok(Json::from(num))
 }
 
-fn get_num(f: Vec<u8>, start: u32, peoples: u32) -> u32 {
+fn get_num(f: Vec<u8>, start: u32, peoples: u32) -> anyhow::Result<u32> {
     let f = Cursor::new(f);
     let mut reader = BufReader::new(f);
     let mut sha512 = Sha512::new();
-    io::copy(&mut reader, &mut sha512).unwrap();
+    io::copy(&mut reader, &mut sha512)?;
     let v = sha512.finalize();
     let mut rng: Pcg64 = Seeder::from(&v).make_rng();
 
-    rng.gen_range(start - 1..=peoples)
+    Ok(rng.gen_range(start - 1..=peoples))
 }
