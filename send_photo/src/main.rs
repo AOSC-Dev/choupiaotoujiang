@@ -1,7 +1,7 @@
 use std::io::{self, BufReader, Cursor};
 
 use axum::{
-    extract::{Multipart, State},
+    extract::{DefaultBodyLimit, Multipart, State},
     http::{Method, StatusCode},
     response::{IntoResponse, Response},
     routing::post,
@@ -40,6 +40,7 @@ async fn main() -> anyhow::Result<()> {
 
     let router = Router::new()
         .route("/upload", post(upload))
+        .layer(DefaultBodyLimit::disable())
         .with_state((start, peoples))
         .layer(
             CorsLayer::new()
@@ -58,9 +59,8 @@ async fn upload(state: State<(u32, u32)>, mut form: Multipart) -> Result<Json<u3
     let mut v = vec![];
     while let Some(field) = form.next_field().await? {
         match field.name() {
-            Some("photo") => {
-                let photo = field.bytes().await?;
-                v.extend(photo);
+            Some("file") => {
+                v.extend(field.bytes().await?);
             }
             _ => continue,
         }

@@ -1,46 +1,36 @@
 <html>
   <form>
     <label for="fileUpload">Upload file</label>
-    <input type="file" id="fileUpload" />
+    <input type="file" id="fileUpload" accept="image/*" />
   </form>
-  <div style="margin: 0 auto;">
+  <div style="margin: 0 auto">
     <div>
-      <img id="photo" width="75%" height="75%">
+      <img id="photo" width="75%" height="75%" />
     </div>
     <div>
-      <a id="result" style="font-size: 70px;"></a>
+      <a id="result" style="font-size: 70px"></a>
     </div>
   </div>
-  <script>
+  <script async>
     const fileInput = document.getElementById("fileUpload");
-    fileInput.addEventListener("change", (event) => {
+    fileInput.addEventListener("change", async (event) => {
       console.log(event);
       const file = event.target.files[0];
       console.log(file);
       if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          console.log(event);
-        };
-        reader.readAsArrayBuffer(file);
-        reader.onloadend = function (e) {
-          const formData = new FormData();
-          console.log(e.target.result);
-          const blob = new Blob([e.target.result]);
-          formData.append("photo", blob);
-          const photo = document.getElementById("photo")
-          photo.src = URL.createObjectURL(blob);
-          fetch("http://10.55.8.187:3233/upload", {
-            method: "POST",
-            body: formData,
-          }).then((resp) => {
-            resp
-              .json()
-              .then(
-                (json) => (document.getElementById("result").innerHTML = json)
-              );
-          });
-        };
+        const formData = new FormData();
+        formData.append("file", file);
+        const photo = document.getElementById("photo");
+        photo.src = URL.createObjectURL(file);
+        const resp = await fetch("http://127.0.0.1:3233/upload", {
+          method: "POST",
+          body: formData,
+          "Content-Type": "multipart/form-data",
+        });
+
+        const json = await resp.json();
+
+        document.getElementById("result").innerHTML = json;
       }
     });
   </script>
