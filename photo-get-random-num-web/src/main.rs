@@ -3,8 +3,8 @@ use std::io::{self, BufReader, Cursor};
 use axum::{
     extract::{DefaultBodyLimit, Multipart, State},
     http::{Method, StatusCode},
-    response::{IntoResponse, Response},
-    routing::post,
+    response::{Html, IntoResponse, Response},
+    routing::{get, post},
     Json, Router,
 };
 use rand::Rng;
@@ -39,6 +39,7 @@ async fn main() -> anyhow::Result<()> {
     let start = std::env::var("choujiang_peoples_start")?.parse::<u32>()?;
 
     let router = Router::new()
+        .route("/", get(home))
         .route("/upload", post(upload))
         .layer(DefaultBodyLimit::disable())
         .with_state((start, peoples))
@@ -53,6 +54,10 @@ async fn main() -> anyhow::Result<()> {
     axum::serve(listener, router).await?;
 
     Ok(())
+}
+
+async fn home() -> Html<&'static str> {
+    Html::from(include_str!("../choujiang.html"))
 }
 
 async fn upload(state: State<(u32, u32)>, mut form: Multipart) -> Result<Json<u32>, AnyhowError> {
