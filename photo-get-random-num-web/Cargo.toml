@@ -6,11 +6,10 @@ edition = "2021"
 [dependencies]
 axum = { version = "0.7", features = ["multipart"] }
 anyhow = "1"
-serde = { version = "1", features = ["derive"] }
-tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread", "process"] }
+tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread"] }
 dotenvy = "0.15.7"
 sha2 = "0.10.8"
 rand = "0.8"
 rand_seeder = "0.3"
 rand_pcg = "0.3.1"
-tower-http = { version = "0.6", features = ["fs", "cors"] }
+tower-http = { version = "0.6", features = ["cors"] }
