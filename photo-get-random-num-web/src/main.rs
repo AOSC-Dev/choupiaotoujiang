@@ -1,7 +1,8 @@
 use std::io::{self, BufReader, Cursor};
 
+use anyhow::Context;
 use axum::{
-    extract::{DefaultBodyLimit, Multipart, State},
+    extract::{DefaultBodyLimit, Multipart},
     http::{Method, StatusCode},
     response::{Html, IntoResponse, Response},
     routing::{get, post},
@@ -35,14 +36,11 @@ where
 async fn main() -> anyhow::Result<()> {
     dotenvy::dotenv().ok();
     let uri = std::env::var("choujiang_uri")?;
-    let peoples = std::env::var("choujiang_peoples")?.parse::<u32>()?;
-    let start = std::env::var("choujiang_peoples_start")?.parse::<u32>()?;
 
     let router = Router::new()
         .route("/", get(home))
         .route("/upload", post(upload))
         .layer(DefaultBodyLimit::disable())
-        .with_state((start, peoples))
         .layer(
             CorsLayer::new()
                 .allow_origin(Any)
@@ -60,18 +58,31 @@ async fn home() -> Html<&'static str> {
     Html::from(include_str!("../choujiang.html"))
 }
 
-async fn upload(state: State<(u32, u32)>, mut form: Multipart) -> Result<Json<u32>, AnyhowError> {
+async fn upload(mut form: Multipart) -> Result<Json<u32>, AnyhowError> {
     let mut v = vec![];
+    let mut random_num_start = None;
+    let mut total = None;
     while let Some(field) = form.next_field().await? {
         match field.name() {
             Some("file") => {
                 v.extend(field.bytes().await?);
             }
+            Some("num_start") => {
+                let num = field.text().await?.parse::<u32>()?;
+                random_num_start = Some(num);
+            }
+            Some("total") => {
+                let num = field.text().await?.parse::<u32>()?;
+                total = Some(num);
+            }
             _ => continue,
         }
     }
 
-    let num = tokio::task::spawn_blocking(move || get_num(v, state.0 .0, state.0 .1)).await??;
+    let random_num_start = random_num_start.context("Request has no 'num_start' field.")?;
+    let total = total.context("Request has no 'total' field.")?;
+
+    let num = tokio::task::spawn_blocking(move || get_num(v, random_num_start, total)).await??;
 
     Ok(Json::from(num))
 }

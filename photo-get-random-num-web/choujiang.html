@@ -1,5 +1,9 @@
 <html>
   <form>
+    <label for="num_start">Start number:</label>
+    <input type="number" id="num_start"></input>
+    <label for="num_start">Total:</label>
+    <input type="number" id="total"></input>
     <label for="fileUpload">Upload file</label>
     <input type="file" id="fileUpload" accept="image/*" />
   </form>
@@ -19,7 +23,11 @@
       console.log(file);
       if (file) {
         const formData = new FormData();
+        const num_start = document.getElementById("num_start").value;
+        const total = document.getElementById("total").value;
         formData.append("file", file);
+        formData.append("num_start", num_start);
+        formData.append("total", total);
         const photo = document.getElementById("photo");
         photo.src = URL.createObjectURL(file);
         const resp = await fetch("/upload", {
