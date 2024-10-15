@@ -95,5 +95,5 @@ fn get_num(f: Vec<u8>, start: u32, peoples: u32) -> anyhow::Result<u32> {
     let v = sha512.finalize();
     let mut rng: Pcg64 = Seeder::from(&v).make_rng();
 
-    Ok(rng.gen_range(start - 1..=peoples))
+    Ok(rng.gen_range(start..=peoples))
 }
