@@ -8,7 +8,7 @@ use std::{
 
 use clap::Parser;
 use indicatif::ProgressBar;
-use rand::{thread_rng, Rng};
+use rand::{rng, Rng};
 use rand_pcg::Pcg64;
 use rand_seeder::Seeder;
 use sha2::{Digest, Sha512};
@@ -51,7 +51,7 @@ fn main() {
 }
 
 fn random(times: u8, peoples: u32, secs: u32) {
-    let mut rng = thread_rng();
+    let mut rng = rng();
     let mut timer = Instant::now();
 
     let mut peoples_vec = (1..=peoples).collect::<Vec<_>>();
@@ -81,7 +81,7 @@ fn random(times: u8, peoples: u32, secs: u32) {
                 break;
             }
 
-            let i = rng.gen_range(0..=peoples_vec.len() - 1);
+            let i = rng.random_range(0..=peoples_vec.len() - 1);
             lucky = peoples_vec[i];
             index = Some(i);
 
@@ -98,7 +98,7 @@ fn seed_from_file(peoples: u32, file: PathBuf) -> u32 {
     let mut sha512 = Sha512::new();
     io::copy(&mut reader, &mut sha512).unwrap();
     let v = sha512.finalize();
-    let mut rng: Pcg64 = Seeder::from(&v).make_rng();
+    let mut rng: Pcg64 = Seeder::from(&v).into_rng();
 
-    rng.gen_range(1..=peoples)
+    rng.random_range(1..=peoples)
 }

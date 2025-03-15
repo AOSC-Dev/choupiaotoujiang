@@ -93,7 +93,7 @@ fn get_num(f: Vec<u8>, start: u32, peoples: u32) -> anyhow::Result<u32> {
     let mut sha512 = Sha512::new();
     io::copy(&mut reader, &mut sha512)?;
     let v = sha512.finalize();
-    let mut rng: Pcg64 = Seeder::from(&v).make_rng();
+    let mut rng: Pcg64 = Seeder::from(&v).into_rng();
 
-    Ok(rng.gen_range(start..=peoples))
+    Ok(rng.random_range(start..=peoples))
 }
