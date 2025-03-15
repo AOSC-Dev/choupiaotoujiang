@@ -1,10 +1,10 @@
 [package]
-name = "photo-get-random-num-web"
+name = "choupiaotoujiang-web"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-axum = { version = "0.7", features = ["multipart"] }
+axum = { version = "0.8", features = ["multipart"] }
 anyhow = "1"
 tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread"] }
 dotenvy = "0.15.7"
